@@ -21,4 +21,5 @@ class CourseInDB(IDModelMixin, DateTimeModelMixin, CourseBase):
     owner: int
 
 class CoursePublic(CourseInDB):
-    owner: Union[int, UserPublic]
+    # owner: Union[int, UserPublic]
+    owner: str

@@ -41,16 +41,19 @@ class CleaningsRepository(BaseRepository):
             query=CREATE_CLEANING_QUERY, values={**new_cleaning.dict(), "owner": requesting_user.id}
         )
         return CleaningInDB(**cleaning)
+
     async def get_cleaning_by_id(self, *, id: int, requesting_user: UserInDB) -> CleaningInDB:
         cleaning = await self.db.fetch_one(query=GET_CLEANING_BY_ID_QUERY, values={"id": id})
         if not cleaning:
             return None
         return CleaningInDB(**cleaning)
+
     async def list_all_user_cleanings(self, requesting_user: UserInDB) -> List[CleaningInDB]:
         cleaning_records = await self.db.fetch_all(
             query=LIST_ALL_USER_CLEANINGS_QUERY, values={"owner": requesting_user.id}
         )
         return [CleaningInDB(**l) for l in cleaning_records]
+
     async def update_cleaning(self, *, cleaning: CleaningInDB, cleaning_update: CleaningUpdate) -> CleaningInDB:
         cleaning_update_params = cleaning.copy(update=cleaning_update.dict(exclude_unset=True))
         if cleaning_update_params.cleaning_type is None:

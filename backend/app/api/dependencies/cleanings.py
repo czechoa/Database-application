@@ -15,6 +15,7 @@ async def get_cleaning_by_id_from_path(
             status_code=status.HTTP_404_NOT_FOUND, detail="No cleaning found with that id.",
         )
     return cleaning
+
 def check_cleaning_modification_permissions(
     current_user: UserInDB = Depends(get_current_active_user),
     cleaning: CleaningInDB = Depends(get_cleaning_by_id_from_path),
