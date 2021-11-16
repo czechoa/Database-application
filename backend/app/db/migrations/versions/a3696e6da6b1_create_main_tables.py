@@ -124,16 +124,53 @@ def create_courses_table() -> None:
         """
     )
 
+def create_skills_table() -> None:
+    op.create_table(
+        "skills",
+        sa.Column("id", sa.Integer, primary_key=True),
+        sa.Column("name", sa.Text,unique=True, nullable=False, index=True),
+    )
+    op.execute(
+        """
+        CREATE TRIGGER update_skills_modtime
+            BEFORE UPDATE
+            ON skills
+            FOR EACH ROW
+        EXECUTE PROCEDURE update_updated_at_column();
+        """
+    )
+
+def create_skills_courses_table() -> None:
+    op.create_table(
+        "skills_courses",
+        sa.Column("id", sa.Integer, primary_key=True),
+        sa.Column("id_course", sa.Integer,sa.ForeignKey("courses.id", ondelete="CASCADE")),
+        sa.Column("id_skill", sa.Integer,sa.ForeignKey("skills.id", ondelete="CASCADE"))
+    )
+    op.execute(
+        """
+        CREATE TRIGGER update_skills_modtime
+            BEFORE UPDATE
+            ON skills_courses
+            FOR EACH ROW
+        EXECUTE PROCEDURE update_updated_at_column();
+        """
+    )
+
 def upgrade() -> None:
     create_updated_at_trigger()
     create_users_table()
     create_profiles_table()
     create_cleanings_table()
     create_courses_table()
+    create_skills_table()
+    create_skills_courses_table()
 
 def downgrade() -> None:
     op.drop_table("cleanings")
+    op.drop_table("skills_courses")
     op.drop_table('courses')
     op.drop_table("profiles")
     op.drop_table("users")
+    op.drop_table("skills")
     op.execute("DROP FUNCTION update_updated_at_column")
