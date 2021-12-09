@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional, Union, List
 from app.models.core import IDModelMixin, DateTimeModelMixin, CoreModel
 
 
@@ -28,3 +28,6 @@ class SkillConnectionINDB(IDModelMixin):
 class SkillPublic(SkillInDB):
     # owner: Union[int, UserPublic]
     name: str
+
+class SkillsPublic(CoreModel):
+    skills: List[SkillCreate]

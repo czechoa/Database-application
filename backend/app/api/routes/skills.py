@@ -1,7 +1,8 @@
 from fastapi import Depends, HTTPException, status, APIRouter, Body, Path
 from app.api.dependencies.database import get_repository
-from app.models.skill import SkillPublic,SkillCreate, SkillConnection,SkillConnectionINDB
+from app.models.skill import SkillPublic,SkillCreate, SkillConnection,SkillConnectionINDB,SkillsPublic
 from app.db.repositories.skills import SkillsRepository
+from typing import List
 
 router = APIRouter()
 
@@ -22,3 +23,12 @@ async def create_skill_and_connect_skill_to_course(
 ) -> SkillConnectionINDB:
 
     return await skills_repo.create_skill_and_connect_to_course(skill_post = new_skill)
+
+@router.post("/create_skills", response_model= SkillsPublic, name="skill:create_skills")
+async def create_skills(
+        skills_repo: SkillsRepository = Depends(get_repository(SkillsRepository)),
+        new_skills: SkillsPublic = Body(..., embed=True),
+) -> SkillsPublic:
+
+    return await skills_repo.create_skills(skills_post = new_skills)
+    # return new_skills
