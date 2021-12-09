@@ -1,3 +1,4 @@
+from app.models.skill import SkillsPublic
 from app.models.user import UserPublic
 from typing import Optional, Union
 from app.models.core import IDModelMixin, DateTimeModelMixin, CoreModel
@@ -23,3 +24,6 @@ class CourseInDB(IDModelMixin, DateTimeModelMixin, CourseBase):
 class CoursePublic(CourseInDB):
     # owner: Union[int, UserPublic]
     owner: str
+
+class CourseCreateWithSkills(CourseCreate):
+    skills : SkillsPublic

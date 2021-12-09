@@ -36,6 +36,8 @@ DELETE_COURSE_BY_ID_QUERY = """
 """
 
 
+
+
 class CoursesRepository(BaseRepository):
     """"
     All database actions associated with the Course resource
@@ -45,6 +47,8 @@ class CoursesRepository(BaseRepository):
         course = await self.db.fetch_one(
             query=CREATE_COURSE_QUERY, values={**new_course.dict(), "owner": requesting_user.id}
         )
+        # course = CourseInDB(**course)
+
         return CourseInDB(**course)
 
     async def get_courses_by_author(self, *, name: str) -> List[CoursePublic]:
