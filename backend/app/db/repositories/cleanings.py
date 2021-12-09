@@ -65,5 +65,6 @@ class CleaningsRepository(BaseRepository):
             values=cleaning_update_params.dict(exclude={"owner", "created_at", "updated_at"}),
         )
         return CleaningInDB(**updated_cleaning)
+
     async def delete_cleaning_by_id(self, *, cleaning: CleaningInDB) -> int:
         return await self.db.execute(query=DELETE_CLEANING_BY_ID_QUERY, values={"id": cleaning.id})

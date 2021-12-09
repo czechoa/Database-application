@@ -11,12 +11,19 @@ class SkillBase(CoreModel):
 class SkillCreate(SkillBase):
     name: str
 
-class SkillConnection(SkillBase):
-    id_course: int
+class SkillConnectionPublic(SkillBase):
+    name: str
 
+class SkillConnection(SkillConnectionPublic):
+    id_course: int
 
 class SkillInDB(IDModelMixin, SkillBase):
     name: str
+
+class SkillConnectionINDB(IDModelMixin):
+    id_course:int
+    id_skill:int
+
 
 class SkillPublic(SkillInDB):
     # owner: Union[int, UserPublic]
