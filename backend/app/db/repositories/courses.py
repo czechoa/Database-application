@@ -1,6 +1,8 @@
 from typing import List
 from app.db.repositories.base import BaseRepository
-from app.models.course import CourseCreate, CourseInDB, CoursePublic
+from app.db.repositories.skills import CREATE_SKILL_QUERY_IF_NOT_EXITS, CREATE_CONNECT_SKILL_TO_COURSE_QUERY
+from app.models.course import CourseCreate, CourseInDB, CoursePublic, CourseCreateWithSkills
+from app.models.skill import SkillInDB, SkillConnectionINDB
 from app.models.user import UserInDB
 
 CREATE_COURSE_QUERY = """
@@ -47,9 +49,29 @@ class CoursesRepository(BaseRepository):
         course = await self.db.fetch_one(
             query=CREATE_COURSE_QUERY, values={**new_course.dict(), "owner": requesting_user.id}
         )
-        # course = CourseInDB(**course)
-
         return CourseInDB(**course)
+
+    async def create_course_with_skills(self, *, new_course: CourseCreateWithSkills, requesting_user: UserInDB) -> CourseInDB:
+        course = await self.db.fetch_one(
+            query=CREATE_COURSE_QUERY, values={**CourseCreate(**new_course.dict()).dict(), "owner": requesting_user.id}
+        )
+        course = CourseInDB(**course)
+        # print('\n' * 10)
+        # print(new_course.skills.skills)
+
+        for skill in  new_course.skills.skills:
+            # print(skill)
+            created_skill = await self.db.fetch_one(query=CREATE_SKILL_QUERY_IF_NOT_EXITS,
+                                                    values={"name": skill.name})
+
+            created_skill = SkillInDB(**created_skill)
+
+            id = await self.db.fetch_one(query=CREATE_CONNECT_SKILL_TO_COURSE_QUERY,
+                                             values={"id_course": course.id, "id_skill": created_skill.id})
+            id = SkillConnectionINDB(**id)
+            # print(created_skill,id)
+
+        return course
 
     async def get_courses_by_author(self, *, name: str) -> List[CoursePublic]:
         course_records = await self.db.fetch_all(query=GET_COURSES_BY_AUTHOR_QUERY, values={"author": name})

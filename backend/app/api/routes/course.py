@@ -34,9 +34,8 @@ async def create_new_course(
         course_repo: CoursesRepository = Depends(get_repository(CoursesRepository)),
 
 ) -> CourseCreateWithSkills:
-    course = await course_repo.create_course(new_course=CourseCreate(**new_course.dict()), requesting_user=current_user)
-    print('\n'*10)
-    print(course)
+    # course = await course_repo.create_course(new_course=CourseCreate(**new_course.dict()), requesting_user=current_user)
+    course = await course_repo.create_course_with_skills(new_course=new_course, requesting_user=current_user)
 
     return new_course
 
