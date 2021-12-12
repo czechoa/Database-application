@@ -29,13 +29,16 @@ async def register_new_user(
     user_repo: UsersRepository = Depends(get_repository(UsersRepository)),
 ) -> UserPublic:
     created_user = await user_repo.register_new_user(new_user=new_user)
+    # print('\n'*10)
+    # print(created_user)
+    # print(type(created_user))
     access_token = AccessToken(
         access_token=auth_service.create_access_token_for_user(user=created_user), token_type="bearer"
     )
     return created_user.copy(update={"access_token": access_token})
 # @router.get("/{username}/", response_model=UserPublic, name="users:get-user-by-username")
 # async def get_user_by_username(
-#   username: str,  user_repo: UsersRepository = Depends(get_repository(UsersRepository)),
+#   username: str,  user_repo: UsersRepository = Depends(get_repocreate_access_token_for_usersitory(UsersRepository)),
 # ) -> UserPublic:
 #     user = await user_repo.get_user_by_username(username=username)
 #     if not user:

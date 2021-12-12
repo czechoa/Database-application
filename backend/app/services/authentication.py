@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from passlib.context import CryptContext
 from app.core.config import SECRET_KEY, JWT_ALGORITHM, JWT_AUDIENCE, JWT_TOKEN_PREFIX, ACCESS_TOKEN_EXPIRE_MINUTES
 from app.models.token import JWTMeta, JWTCreds, JWTPayload
-from app.models.user import UserPasswordUpdate, UserInDB
+from app.models.user import UserPasswordUpdate, UserInDB, UserPublic
 from typing import Optional
 from fastapi import HTTPException, status
 from pydantic import ValidationError
@@ -34,8 +34,11 @@ class AuthService:
         audience: str = JWT_AUDIENCE,
         expires_in: int = ACCESS_TOKEN_EXPIRE_MINUTES,
     ) -> str:
-        if not user or not isinstance(user, UserInDB):
+        # if not user or not isinstance(user, UserInDB):
+        if not user or  (not isinstance(user, UserPublic) and not isinstance(user, UserInDB)):
+            print(type(user))
             return None
+
         jwt_meta = JWTMeta(
             aud=audience,
             iat=datetime.timestamp(datetime.utcnow()),

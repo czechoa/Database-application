@@ -4,6 +4,7 @@ from app.models.cleaning import CleaningInDB
 from app.db.repositories.cleanings import CleaningsRepository
 from app.api.dependencies.database import get_repository
 from app.api.dependencies.auth import get_current_active_user
+
 async def get_cleaning_by_id_from_path(
     cleaning_id: int = Path(..., ge=1),
     current_user: UserInDB = Depends(get_current_active_user),

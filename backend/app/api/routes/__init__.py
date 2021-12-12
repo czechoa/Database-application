@@ -14,4 +14,4 @@ router.include_router(users_router, prefix="/users", tags=["users"])
 router.include_router(profiles_router, prefix="/profiles", tags=["profiles"])
 router.include_router(skills_router, prefix="/skills", tags=["skills"])
 
-router.include_router(payments_router, prefix="/courses/{courses_id}/payments", tags=["payments"])
+router.include_router(payments_router, prefix="/courses/{course_id}/payments", tags=["payments"])
