@@ -1,9 +1,7 @@
 from typing import List
-
 from fastapi import APIRouter, Body, Depends, status, HTTPException
-
 from app.api.dependencies.auth import get_current_active_user
-from app.api.dependencies.course import get_course_by_id_from_path, check_course_modification_permissions
+from app.api.dependencies.courses import get_course_by_id_from_path, check_course_modification_permissions
 from app.api.dependencies.database import get_repository
 from app.models.course import CourseInDB, CoursePublic, CourseCreate,CourseCreateWithSkills
 from app.db.repositories.courses import CoursesRepository
@@ -18,14 +16,14 @@ async def get_all_course(courses_repo: CoursesRepository = Depends(get_repositor
     return await courses_repo.list_all_courses()
 
 
-@router.post("/", response_model=CoursePublic, name="courses:create-course", status_code=status.HTTP_201_CREATED)
-async def create_new_course(
-        new_course: CourseCreate = Body(..., embed=True),
-        current_user: UserInDB = Depends(get_current_active_user),
-        course_repo: CoursesRepository = Depends(get_repository(CoursesRepository)),
-) -> CoursePublic:
-    return await course_repo.create_course(new_course=new_course, requesting_user=current_user)
-
+# @router.post("/", response_model=CoursePublic, name="courses:create-course", status_code=status.HTTP_201_CREATED)
+# async def create_new_course(
+#         new_course: CourseCreate = Body(..., embed=True),
+#         current_user: UserInDB = Depends(get_current_active_user),
+#         course_repo: CoursesRepository = Depends(get_repository(CoursesRepository)),
+# ) -> CoursePublic:
+#     return await course_repo.create_course(new_course=new_course, requesting_user=current_user)
+#
 
 @router.post("/create_course/", response_model=CourseCreateWithSkills, name="courses:create-course-with-skills", status_code=status.HTTP_201_CREATED)
 async def create_new_course(
