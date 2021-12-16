@@ -10,12 +10,12 @@ from app.models.user import UserInDB
 router = APIRouter()
 
 
-@router.get("/", response_model=List[CoursePublic], name="courses:get-all-course")
+@router.get("/get_all_course/", response_model=List[CoursePublic], name="courses:get-all-course")
 async def get_all_course(courses_repo: CoursesRepository = Depends(get_repository(CoursesRepository))) -> List[
     CoursePublic]:
     return await courses_repo.list_all_courses()
 
-@router.get("/{course_id}/", response_model=CoursePublic, name="cleanings:get-course-by-id")
+@router.get("/{course_id}/", response_model=CoursePublic, name="course:get-course-by-id")
 async def get_cleaning_by_id(course: CourseInDB = Depends(get_course_by_id_from_path)) -> CoursePublic:
     return course
 
@@ -43,12 +43,21 @@ async def create_new_course(
     return new_course
 
 
-@router.get("/", response_model=List[CoursePublic], name="courses:list-all-user-courses")
+@router.get("/all_user_courses/", response_model=List[CoursePublic], name="courses:list-all-user-courses")
 async def get_list_all_user_courses(
-        current_user: UserInDB = Depends(get_current_active_user),
-        courses_repo: CoursesRepository = Depends(get_repository(CoursesRepository)),
+        # current_user: UserInDB = Depends(get_current_active_user),
+        # courses_repo: CoursesRepository = Depends(get_repository(CoursesRepository)),
 ) -> List[CoursePublic]:
-    return await courses_repo.list_all_user_courses(requesting_user=current_user)
+    # print('\n'*10)
+    # print('all course')
+    # print(current_user)
+    # return await courses_repo.list_all_user_courses(requesting_user=current_user)
+    return None
+
+@router.get("/none/", response_model= None, name="courses:none")
+async def get_list_all_user_courses(
+) -> List[CoursePublic]:
+    return None
 
 
 @router.get("/", response_model=List[CoursePublic], name="courses:get-courses-by-author")

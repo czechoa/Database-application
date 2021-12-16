@@ -9,8 +9,9 @@ from app.api.dependencies.payments import (
     check_payment_create_permissions,
     check_payment_list_permissions,
     check_payment_get_permissions,
+    check_offer_acceptance_permissions,
     list_payments_for_course_by_id_from_path,
-    # get_payment_for_course_from_user_by_path
+    get_payment_for_course_from_user_by_path
 )
 from app.db.repositories.payments import PaymentsRepository
 from app.api.dependencies.database import get_repository
@@ -26,41 +27,70 @@ router = APIRouter()
     response_model=PaymentPublic,
     name="payments:create-payment",
     status_code=status.HTTP_201_CREATED,
-    # dependencies=[Depends(check_payment_create_permissions)],
+    dependencies=[Depends(check_payment_create_permissions)],
 )
 async def create_payment(
-    # course: CourseInDB = Depends(get_course_by_id_from_path()),
-    # cleaning: CleaningInDB = Depends(get_cleaning_by_id_from_path),
-    current_user: UserInDB = Depends(get_current_active_user),
-    payments_repo: PaymentsRepository = Depends(get_repository(PaymentsRepository)),
+        current_user: UserInDB = Depends(get_current_active_user),
+        # course_id: int = Path(..., ge=1),
+        course: CourseInDB = Depends(get_course_by_id_from_path),
+        payments_repo: PaymentsRepository = Depends(get_repository(PaymentsRepository)),
 ) -> PaymentPublic:
-    course: CourseInDB = Depends(get_course_by_id_from_path()),
     return await payments_repo.create_payment_for_course(
-        new_offer=PaymentCreate(course_id=course.id, user_id=current_user.id)
-    )
+        new_payment=PaymentCreate(course_id=course.id, user_id=current_user.id))
+
 
 
 # @router.get(
 #     "/",
 #     response_model=List[PaymentPublic],
-#     name="offers:list-offers-for-cleaning",
-#     dependencies=[Depends(check_payment_list_permissions())],
+#     name="payments:list-payment-for-course",
+#     dependencies=[Depends(check_payment_list_permissions)],
 # )
 # async def list_offers_for_course(
-#         payments: List[PaymentInDB] = Depends(list_payments_for_course_by_id_from_path())
+#         # payments: List[PaymentInDB] = Depends(list_payments_for_course_by_id_from_path())
 # ) -> List[PaymentPublic]:
-#     return payments
+#     return None
+
 
 
 # @router.get(
 #     "/{username}/",
 #     response_model=PaymentPublic,
-#     name="offers:get-offer-from-user",
-#     dependencies=[Depends(check_payment_get_permissions())],
+#     name="payments:get-payment-from-user",
+#     dependencies=[Depends(check_payment_get_permissions)],
 # )
-# async def get_offer_from_user(payments: PaymentInDB = Depends(get_payment_for_course_from_user_by_path())) -> PaymentPublic:
+# async def get_offer_from_user(payments: PaymentInDB = Depends(get_payment_for_course_from_user_by_path)) -> PaymentPublic:
 #     return payments
+
+
+@router.get(
+    "/my_payments/",
+    response_model=List[PaymentInDB],
+    name="payments:get-my-payments",
+    # dependencies=[Depends(check_payment_get_permissions)],
+)
+async def get_payments_user(
+        current_user: UserInDB = Depends(get_current_active_user),
+        payments_repo: PaymentsRepository = Depends(get_repository(PaymentsRepository)),
+                                        ) -> List[PaymentInDB]:
+    print('\n'*10)
+    print(type(current_user))
+
+    return payments_repo.list_user_payments(user=current_user)
+
 #
+# @router.put(
+#     "/{username}/",
+#     response_model=PaymentPublic,
+#     name="offers:accept-offer-from-user",
+#     dependencies=[Depends(check_offer_acceptance_permissions)],
+# )
+# async def accept_offer(
+#     payment: PaymentInDB = Depends(get_payment_for_course_from_user_by_path),
+#     offers_repo: PaymentsRepository = Depends(get_repository(PaymentsRepository)),
+# ) -> PaymentPublic:
+#     return await offers_repo.accept_offer(offer=payment, offer_update=PaymentUpdate(status="accepted"))
+
 
 # @router.put("/{username}/", response_model=PaymentPublic, name="payments:accept-payment-from-user")
 # async def accept_payment_from_user(username: str = Path(..., min_length=3)) -> PaymentPublic:

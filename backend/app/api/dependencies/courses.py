@@ -10,7 +10,8 @@ async def get_course_by_id_from_path(
     current_user: UserInDB = Depends(get_current_active_user),
     courses_repo: CoursesRepository = Depends(get_repository(CoursesRepository)),
 ) -> CourseInDB:
-    course = await courses_repo.get_course_by_id(id=course_id, requesting_user=current_user)
+    print(course_id)
+    course = await courses_repo.get_course_by_id(id=course_id)
     if not course:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="No course found with that id.",

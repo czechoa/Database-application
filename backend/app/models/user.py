@@ -49,6 +49,7 @@ class UserInDB(IDModelMixin, DateTimeModelMixin, UserBase):
     """
     password: constr(min_length=7, max_length=100)
     salt: str
+
 class UserPublic(IDModelMixin, DateTimeModelMixin, UserBase):
     pass
 

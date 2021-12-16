@@ -10,10 +10,15 @@ CREATE_COURSE_QUERY = """
     VALUES (:name, :description, :price, :owner)
     RETURNING id, name, description, price, owner, created_at, updated_at;
 """
+# GET_COURSE_BY_ID_QUERY = """
+#     SELECT c.id, c.name, c.description, c.price,  c.created_at, c.updated_at, u.username as owner
+#     FROM Courses c join users u on u.id = c.owner
+#     WHERE c.id = :id;
+# """
 GET_COURSE_BY_ID_QUERY = """
-    SELECT c.id, c.name, c.description, c.price,  c.created_at, c.updated_at, u.username as owner
-    FROM Courses c join users u on u.id = c.owner
-    WHERE id = :id;
+    SELECT * 
+    FROM Courses c 
+    WHERE c.id = :id;
 """
 
 GET_COURSES_BY_AUTHOR_QUERY = """
@@ -80,6 +85,14 @@ class CoursesRepository(BaseRepository):
 
         return [CoursePublic(**l) for  l in course_records]
 
+    async def get_course_by_id(self, *, id: int) -> CourseInDB:
+        print('\n'*10)
+        print(id)
+        cleaning = await self.db.fetch_one(query=GET_COURSE_BY_ID_QUERY, values={"id": id})
+        print(CourseInDB(**cleaning))
+        if not cleaning:
+            return None
+        return CourseInDB(**cleaning)
 
     async def list_all_courses(self) -> List[CoursePublic]:
         course_records = await self.db.fetch_all(

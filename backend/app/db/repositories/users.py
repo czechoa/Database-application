@@ -43,7 +43,13 @@ class UsersRepository(BaseRepository):
         user_record = await self.db.fetch_one(query=GET_USER_BY_USERNAME_QUERY, values={"username": username})
         if user_record:
             user = UserInDB(**user_record)
+            print('\n'*10)
+            print('user in repo')
+            print(user)
+            print(populate)
+            print(type(user))
             if populate:
+                print('true populate',populate)
                 return await self.populate_user(user=user)
             return user
 
@@ -69,7 +75,6 @@ class UsersRepository(BaseRepository):
             profile_create=ProfileCreate(user_id=created_user["id"])
         )
         return await self.populate_user(user=UserInDB(**created_user))
-
 
     async def authenticate_user(self, *, email: EmailStr, password: str) -> Optional[UserInDB]:
         # make user user exists in db
