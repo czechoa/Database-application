@@ -89,9 +89,9 @@ class CoursesRepository(BaseRepository):
         print('\n'*10)
         print(id)
         cleaning = await self.db.fetch_one(query=GET_COURSE_BY_ID_QUERY, values={"id": id})
-        print(CourseInDB(**cleaning))
         if not cleaning:
             return None
+        print(CourseInDB(**cleaning))
         return CourseInDB(**cleaning)
 
     async def list_all_courses(self) -> List[CoursePublic]:

@@ -2,41 +2,48 @@ import jwt
 import bcrypt
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
-from app.core.config import SECRET_KEY, JWT_ALGORITHM, JWT_AUDIENCE, JWT_TOKEN_PREFIX, ACCESS_TOKEN_EXPIRE_MINUTES
-from app.models.token import JWTMeta, JWTCreds, JWTPayload
-from app.models.user import UserPasswordUpdate, UserInDB, UserPublic
+
 from typing import Optional
 from fastapi import HTTPException, status
 from pydantic import ValidationError
+
+from app.core.config import SECRET_KEY, JWT_ALGORITHM, JWT_AUDIENCE, JWT_TOKEN_PREFIX, ACCESS_TOKEN_EXPIRE_MINUTES
+from app.models.token import JWTMeta, JWTCreds, JWTPayload
 from app.models.user import UserBase, UserPasswordUpdate
-from typing import Optional, Type
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
 class AuthException(BaseException):
     pass
+
+
 class AuthService:
     def create_salt_and_hashed_password(self, *, plaintext_password: str) -> UserPasswordUpdate:
         salt = self.generate_salt()
         hashed_password = self.hash_password(password=plaintext_password, salt=salt)
+
         return UserPasswordUpdate(salt=salt, password=hashed_password)
+
     def generate_salt(self) -> str:
         return bcrypt.gensalt().decode()
+
     def hash_password(self, *, password: str, salt: str) -> str:
         return pwd_context.hash(password + salt)
+
     def verify_password(self, *, password: str, salt: str, hashed_pw: str) -> bool:
         return pwd_context.verify(password + salt, hashed_pw)
+
     def create_access_token_for_user(
         self,
         *,
-
-        user: Type[UserBase],
+        user: UserBase,
         secret_key: str = str(SECRET_KEY),
         audience: str = JWT_AUDIENCE,
         expires_in: int = ACCESS_TOKEN_EXPIRE_MINUTES,
     ) -> str:
-        # if not user or not isinstance(user, UserInDB):
-        if not user or  (not isinstance(user, UserPublic) and not isinstance(user, UserInDB)):
-            print(type(user))
+        if not user or not isinstance(user, UserBase):
             return None
 
         jwt_meta = JWTMeta(
@@ -45,12 +52,8 @@ class AuthService:
             exp=datetime.timestamp(datetime.utcnow() + timedelta(minutes=expires_in)),
         )
         jwt_creds = JWTCreds(sub=user.email, username=user.username)
-        token_payload = JWTPayload(
-            **jwt_meta.dict(),
-            **jwt_creds.dict(),
-        )
-        # NOTE - previous versions of pyjwt ("<2.0") returned the token as bytes insted of a string.
-        # That is no longer the case and the `.decode("utf-8")` has been removed.
+        token_payload = JWTPayload(**jwt_meta.dict(), **jwt_creds.dict(),)
+        # access_token = jwt.encode(token_payload.dict(), secret_key, algorithm=JWT_ALGORITHM).decode("utf-8")
         access_token = jwt.encode(token_payload.dict(), secret_key, algorithm=JWT_ALGORITHM)
         return access_token
 
@@ -64,4 +67,5 @@ class AuthService:
                 detail="Could not validate token credentials.",
                 headers={"WWW-Authenticate": "Bearer"},
             )
+
         return payload.username
