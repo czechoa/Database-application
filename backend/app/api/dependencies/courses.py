@@ -16,6 +16,11 @@ async def get_course_by_id_from_path(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="No course found with that id.",
         )
+
+    if course.owner != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="You can't delete, not your course.",
+        )
     return course
 
 

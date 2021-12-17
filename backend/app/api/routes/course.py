@@ -81,7 +81,7 @@ async def get_courses_by_author(
     dependencies=[Depends(check_course_modification_permissions)],
 )
 async def delete_course_by_id(
-        Course: CourseInDB = Depends(get_course_by_id_from_path),
-        Courses_repo: CoursesRepository = Depends(get_repository(CoursesRepository)),
+        course: CourseInDB = Depends(get_course_by_id_from_path),
+        courses_repo: CoursesRepository = Depends(get_repository(CoursesRepository)),
 ) -> int:
-    return await Courses_repo.delete_course_by_id(Course=Course)
+    return await courses_repo.delete_course_by_id(course_id=course.id)

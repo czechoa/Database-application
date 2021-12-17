@@ -104,5 +104,5 @@ class CoursesRepository(BaseRepository):
         )
         return [CoursePublic(**l) for l in course_records]
 
-    async def delete_course_by_id(self, *, course: CourseInDB) -> int:
-        return await self.db.execute(query=DELETE_COURSE_BY_ID_QUERY, values={"id": course.id})
+    async def delete_course_by_id(self, *, course_id: int) -> int:
+        return await self.db.execute(query=DELETE_COURSE_BY_ID_QUERY, values={"id": course_id})
