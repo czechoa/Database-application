@@ -71,9 +71,9 @@ class CoursesRepository(BaseRepository):
 
             created_skill = SkillInDB(**created_skill)
 
-            id = await self.db.fetch_one(query=CREATE_CONNECT_SKILL_TO_COURSE_QUERY,
+            await self.db.fetch_one(query=CREATE_CONNECT_SKILL_TO_COURSE_QUERY,
                                              values={"id_course": course.id, "id_skill": created_skill.id})
-            id = SkillConnectionINDB(**id)
+            # id = SkillConnectionINDB(**id)
             # print(created_skill,id)
 
         return course
@@ -86,12 +86,10 @@ class CoursesRepository(BaseRepository):
         return [CoursePublic(**l) for  l in course_records]
 
     async def get_course_by_id(self, *, id: int) -> CourseInDB:
-        print('\n'*10)
-        print(id)
+
         cleaning = await self.db.fetch_one(query=GET_COURSE_BY_ID_QUERY, values={"id": id})
         if not cleaning:
             return None
-        print(CourseInDB(**cleaning))
         return CourseInDB(**cleaning)
 
     async def list_all_courses(self) -> List[CoursePublic]:
@@ -100,9 +98,9 @@ class CoursesRepository(BaseRepository):
         )
         return [CoursePublic(**l) for l in course_records]
 
-    async def list_all_user_courses(self, requesting_user: UserInDB) -> List[CoursePublic]:
+    async def list_all_user_courses(self, owner: int) -> List[CoursePublic]:
         course_records = await self.db.fetch_all(
-            query=LIST_ALL_USER_COURSES_QUERY, values={"owner": requesting_user.id}
+            query=LIST_ALL_USER_COURSES_QUERY, values={"owner_id": owner}
         )
         return [CoursePublic(**l) for l in course_records]
 
