@@ -17,13 +17,7 @@ async def get_course_by_id_from_path(
             status_code=status.HTTP_404_NOT_FOUND, detail="No course found with that id.",
         )
 
-    if course.owner != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="You can't delete, not your course.",
-        )
     return course
-
-
 
 def check_course_modification_permissions(
     current_user: UserInDB = Depends(get_current_active_user),

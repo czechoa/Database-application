@@ -31,10 +31,10 @@ router = APIRouter()
 )
 async def create_payment(
         current_user: UserInDB = Depends(get_current_active_user),
-        # course_id: int = Path(..., ge=1),
         course: CourseInDB = Depends(get_course_by_id_from_path),
         payments_repo: PaymentsRepository = Depends(get_repository(PaymentsRepository)),
 ) -> PaymentPublic:
+    print(create_payment)
     return await payments_repo.create_payment_for_course(
         new_payment=PaymentCreate(course_id=course.id, user_id=current_user.id))
 

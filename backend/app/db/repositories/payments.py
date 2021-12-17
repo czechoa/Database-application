@@ -6,7 +6,7 @@ from app.models.course import CourseInDB
 from app.models.payment import PaymentCreate, PaymentPublic,PaymentUpdate, PaymentInDB
 from app.models.user import UserInDB
 
-CREATE_Payment_FOR_CLEANING_QUERY = """
+CREATE_PAYMENT_FOR_COURSE_QUERY = """
     INSERT INTO payments(course_id, user_id, status)
     VALUES (:course_id, :user_id, :status)
     RETURNING course_id, user_id, status, created_at, updated_at;
@@ -18,16 +18,17 @@ CREATE_Payment_FOR_CLEANING_QUERY = """
 #     where course_id = :course_id;
 # """
 #
-# GET_PAYMENT_FOR_COURSE_FROM_USER_QUERY = """
-#     select *
-#     from payments
-#     where course_id = :course_id and  user_id = :user_id;
-# """
-# GET_USER_PAYMENTS_QUERY = """
-#     select *
-#     from payments
-#     where course_id = :course_id and  user_id = :user_id;
-# """
+GET_PAYMENT_FOR_COURSE_FROM_USER_QUERY = """
+    select *
+    from payments
+    where course_id = :course_id and  user_id = :user_id;
+"""
+
+GET_USER_PAYMENTS_QUERY = """
+    select *
+    from payments
+    where course_id = :course_id and  user_id = :user_id;
+"""
 
 GET_USER_PAYMENTS_QUERY = """
     select p.*
@@ -57,7 +58,7 @@ class PaymentsRepository(BaseRepository):
     async def create_payment_for_course(self, *, new_payment: PaymentCreate) -> PaymentInDB:
         try:
             created_payment = await self.db.fetch_one(
-                query=CREATE_Payment_FOR_CLEANING_QUERY, values={**new_payment.dict(), "status": "pending"}
+                query=CREATE_PAYMENT_FOR_COURSE_QUERY, values={**new_payment.dict(), "status": "active"}
             )
             return PaymentInDB(**created_payment)
         except UniqueViolationError:
@@ -85,14 +86,14 @@ class PaymentsRepository(BaseRepository):
 
         return [PaymentInDB(**o) for o in offers]
 
-    # async def get_payment_for_course_from_user(self, *, course: CourseInDB, user: UserInDB) -> PaymentInDB:
-    #     offer_record = await self.db.fetch_one(
-    #         query=GET_PAYMENT_FOR_COURSE_FROM_USER_QUERY,
-    #         values={"course_id": course.id, "user_id": user.id},
-    #     )
-    #     if not offer_record:
-    #         return None
-    #     return PaymentInDB(**offer_record)
+    async def get_payment_for_course_from_user(self, *, course: CourseInDB, user: UserInDB) -> PaymentInDB:
+        offer_record = await self.db.fetch_one(
+            query=GET_PAYMENT_FOR_COURSE_FROM_USER_QUERY,
+            values={"course_id": course.id, "user_id": user.id},
+        )
+        if not offer_record:
+            return None
+        return PaymentInDB(**offer_record)
 
 
     # async def accept_offer(self, *, payment: PaymentInDB, payment_update: PaymentUpdate) -> PaymentInDB:
