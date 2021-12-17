@@ -22,6 +22,21 @@ from app.models.user import UserInDB
 router = APIRouter()
 
 
+# @router.get(
+#     "/",
+#     response_model=PaymentInDB,
+#     name="payments:get-my-payments",
+#     # dependencies=[Depends(check_payment_get_permissions)],
+# )
+# async def get_payments_user(
+#         current_user: UserInDB = Depends(get_current_active_user),
+#         payments_repo: PaymentsRepository = Depends(get_repository(PaymentsRepository)),
+#                                         ) -> PaymentInDB:
+#     # print('\n'*10)
+#     # print(type(current_user))
+#     return payments_repo.list_user_payments(user=current_user)
+    # return None
+
 @router.post(
     "/",
     response_model=PaymentPublic,
@@ -63,20 +78,7 @@ async def create_payment(
 #     return payments
 
 
-@router.get(
-    "/my_payments/",
-    response_model=List[PaymentInDB],
-    name="payments:get-my-payments",
-    # dependencies=[Depends(check_payment_get_permissions)],
-)
-async def get_payments_user(
-        current_user: UserInDB = Depends(get_current_active_user),
-        payments_repo: PaymentsRepository = Depends(get_repository(PaymentsRepository)),
-                                        ) -> List[PaymentInDB]:
-    print('\n'*10)
-    print(type(current_user))
 
-    return payments_repo.list_user_payments(user=current_user)
 
 #
 # @router.put(

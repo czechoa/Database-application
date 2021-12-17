@@ -75,16 +75,19 @@ class PaymentsRepository(BaseRepository):
     #     return [PaymentInDB(**o) for o in offers]
 
 
-    async def list_user_payments(self, *, user: UserInDB) -> List[PaymentInDB]:
-        print("\n" * 10)
-        offers = await self.db.fetch_all(
-            query=GET_USER_PAYMENTS_QUERY,
-            values={"user_id": user.id}
-        )
-        print("ala ma kota, i to dwa ")
-        print([PaymentInDB(**o) for o in offers])
-
-        return [PaymentInDB(**o) for o in offers]
+    async def list_user_payments(self, *, user: UserInDB) ->CourseInDB:
+        print('\n'*10)
+        return None
+        # print("\n" * 10)
+        # print("ala ma kota, i to dwa ")
+        #
+        # offers = await self.db.fetch_all(
+        #     query=GET_USER_PAYMENTS_QUERY,
+        #     values={"user_id": user.id}
+        # )
+        # print([PaymentInDB(**o) for o in offers])
+        #
+        # return [PaymentInDB(**o) for o in offers]
 
     async def get_payment_for_course_from_user(self, *, course: CourseInDB, user: UserInDB) -> PaymentInDB:
         offer_record = await self.db.fetch_one(

@@ -28,3 +28,5 @@ def check_course_modification_permissions(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Action forbidden. Users are only able to modify courses they own.",
         )
+
+

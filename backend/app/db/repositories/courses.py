@@ -42,7 +42,12 @@ DELETE_COURSE_BY_ID_QUERY = """
     RETURNING id;
 """
 
-
+LIST_ALL_COURSES_BUYING_BY_USER_QUERY = """
+    select c.id, c.name, c.description, c.price,  c.created_at, c.updated_at, u.username as owner
+    from payments p join users u on u.id = p.user_id
+    join courses c on p.course_id = c.id
+    where u.id = :user_id;
+"""
 
 
 class CoursesRepository(BaseRepository):
@@ -98,7 +103,7 @@ class CoursesRepository(BaseRepository):
         )
         return [CoursePublic(**l) for l in course_records]
 
-    async def list_all_user_courses(self, owner: int) -> List[CoursePublic]:
+    async def list_all_user_courses(self,* , owner: int) -> List[CoursePublic]:
         course_records = await self.db.fetch_all(
             query=LIST_ALL_USER_COURSES_QUERY, values={"owner_id": owner}
         )
@@ -106,3 +111,15 @@ class CoursesRepository(BaseRepository):
 
     async def delete_course_by_id(self, *, course_id: int) -> int:
         return await self.db.execute(query=DELETE_COURSE_BY_ID_QUERY, values={"id": course_id})
+
+
+    async def list_all_user_buying_courses(self,*,user:UserInDB) -> List[CoursePublic]:
+        print('tralalaa in repo')
+        print(type(user))
+        course_records = await self.db.fetch_all(
+            query=LIST_ALL_COURSES_BUYING_BY_USER_QUERY, values={"user_id": user.id}
+        )
+        print('\n' * 10)
+
+        return [CoursePublic(**l) for l in course_records]
+        # return [CoursePublic(**l) for l in course_records]
