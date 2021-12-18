@@ -27,3 +27,4 @@ class CoursePublic(CourseInDB):
 
 class CourseCreateWithSkills(CourseCreate):
     skills : SkillsPublic
+

@@ -2,7 +2,7 @@ from typing import List
 from app.db.repositories.base import BaseRepository
 from app.db.repositories.skills import CREATE_SKILL_QUERY_IF_NOT_EXITS, CREATE_CONNECT_SKILL_TO_COURSE_QUERY
 from app.models.course import CourseCreate, CourseInDB, CoursePublic, CourseCreateWithSkills
-from app.models.skill import SkillInDB, SkillConnectionINDB
+from app.models.skill import SkillInDB, SkillConnectionINDB, SkillPublic, SkillCreate, SkillsPublic
 from app.models.user import UserInDB
 
 CREATE_COURSE_QUERY = """
@@ -49,6 +49,14 @@ LIST_ALL_COURSES_BUYING_BY_USER_QUERY = """
     where u.id = :user_id;
 """
 
+LIST_COURSE_SKILLS = """
+    select c.id,s.name
+    from skills s
+    join skills_courses sc on s.id = sc.id_skill
+    join courses c on sc.id_course = c.id
+    where c.id= :id;
+"""
+
 
 class CoursesRepository(BaseRepository):
     """"
@@ -61,7 +69,8 @@ class CoursesRepository(BaseRepository):
         )
         return CourseInDB(**course)
 
-    async def create_course_with_skills(self, *, new_course: CourseCreateWithSkills, requesting_user: UserInDB) -> CourseInDB:
+    async def create_course_with_skills(self, *, new_course: CourseCreateWithSkills,
+                                        requesting_user: UserInDB) -> CourseInDB:
         course = await self.db.fetch_one(
             query=CREATE_COURSE_QUERY, values={**CourseCreate(**new_course.dict()).dict(), "owner": requesting_user.id}
         )
@@ -69,7 +78,7 @@ class CoursesRepository(BaseRepository):
         # print('\n' * 10)
         # print(new_course.skills.skills)
 
-        for skill in  new_course.skills.skills:
+        for skill in new_course.skills.skills:
             # print(skill)
             created_skill = await self.db.fetch_one(query=CREATE_SKILL_QUERY_IF_NOT_EXITS,
                                                     values={"name": skill.name})
@@ -77,7 +86,7 @@ class CoursesRepository(BaseRepository):
             created_skill = SkillInDB(**created_skill)
 
             await self.db.fetch_one(query=CREATE_CONNECT_SKILL_TO_COURSE_QUERY,
-                                             values={"id_course": course.id, "id_skill": created_skill.id})
+                                    values={"id_course": course.id, "id_skill": created_skill.id})
             # id = SkillConnectionINDB(**id)
             # print(created_skill,id)
 
@@ -88,7 +97,7 @@ class CoursesRepository(BaseRepository):
         if not course_records:
             return None
 
-        return [CoursePublic(**l) for  l in course_records]
+        return [CoursePublic(**l) for l in course_records]
 
     async def get_course_by_id(self, *, id: int) -> CourseInDB:
 
@@ -103,7 +112,7 @@ class CoursesRepository(BaseRepository):
         )
         return [CoursePublic(**l) for l in course_records]
 
-    async def list_all_user_courses(self,* , owner: int) -> List[CoursePublic]:
+    async def list_all_user_courses(self, *, owner: int) -> List[CoursePublic]:
         course_records = await self.db.fetch_all(
             query=LIST_ALL_USER_COURSES_QUERY, values={"owner_id": owner}
         )
@@ -112,14 +121,23 @@ class CoursesRepository(BaseRepository):
     async def delete_course_by_id(self, *, course_id: int) -> int:
         return await self.db.execute(query=DELETE_COURSE_BY_ID_QUERY, values={"id": course_id})
 
-
-    async def list_all_user_buying_courses(self,*,user:UserInDB) -> List[CoursePublic]:
+    async def list_all_user_buying_courses(self, *, user: UserInDB) -> List[CourseCreateWithSkills]:
         print('tralalaa in repo')
         print(type(user))
         course_records = await self.db.fetch_all(
             query=LIST_ALL_COURSES_BUYING_BY_USER_QUERY, values={"user_id": user.id}
         )
         print('\n' * 10)
+        courses_with_skills = []
+        for course in [CoursePublic(**l) for l in course_records]:
+            skills_records = await self.db.fetch_all(
+                query=LIST_COURSE_SKILLS, values={"id": course.id}
+            )
+            skills = [SkillPublic(**l) for l in skills_records]
+            skills_public  = SkillsPublic(skills = skills)
+            course_with_skills = CourseCreateWithSkills(**course.dict(),skills= skills_public)
+            courses_with_skills.append(course_with_skills)
+        # return [CoursePublic(**l) for l in course_records]
+        return courses_with_skills
 
-        return [CoursePublic(**l) for l in course_records]
         # return [CoursePublic(**l) for l in course_records]

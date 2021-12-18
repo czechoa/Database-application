@@ -12,16 +12,15 @@ router = APIRouter()
 
 @router.get(
     "/get_all_user_buying_courses/",
-    response_model= List[CoursePublic],
+    response_model= List[CourseCreateWithSkills],
     name="courses:get-my-buying_courses",
 )
 async def get_all_buy_course_by_user(
         current_user: UserInDB = Depends(get_current_active_user),
         courses_repo: CoursesRepository = Depends(get_repository(CoursesRepository)),
-                                        ) -> List[CoursePublic]:
+                                        ) -> List[CourseCreateWithSkills]:
 
-    print('\n'*10)
-    print(type(current_user))
+
     return await courses_repo.list_all_user_buying_courses(user=current_user)
     # return None
 
@@ -101,9 +100,6 @@ async def create_new_course(
 #     print('all course')
 #     print(current_user)
 #     return await courses_repo.list_all_user_courses(requesting_user=current_user)
-
-
-
 
 
 
