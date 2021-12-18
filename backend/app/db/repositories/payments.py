@@ -58,7 +58,7 @@ class PaymentsRepository(BaseRepository):
     async def create_payment_for_course(self, *, new_payment: PaymentCreate) -> PaymentInDB:
         try:
             created_payment = await self.db.fetch_one(
-                query=CREATE_PAYMENT_FOR_COURSE_QUERY, values={**new_payment.dict(), "status": "active"}
+                query=CREATE_PAYMENT_FOR_COURSE_QUERY, values={**new_payment.dict(), "status": "pending"}
             )
             return PaymentInDB(**created_payment)
         except UniqueViolationError:

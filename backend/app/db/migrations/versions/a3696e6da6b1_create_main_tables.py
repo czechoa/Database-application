@@ -188,6 +188,37 @@ def create_payments_table() -> None:
         """
     )
 
+def create_assessments_table() -> None:
+    op.create_table(
+        "assessments",
+        sa.Column(
+            "user_id",  # 'user' is a reserved word in postgres, so going with user_id instead
+            sa.Integer,
+            sa.ForeignKey("users.id", ondelete="CASCADE"),
+            nullable=False,
+            index=True,
+        ),
+        sa.Column(
+            "course_id",  # going with `cleaning_id` for consistency
+            sa.Integer,
+            sa.ForeignKey("courses.id", ondelete="CASCADE"),
+            nullable=False,
+            index=True,
+        ),
+        sa.Column("rating", sa.Integer, nullable=False,  index=True),
+        *timestamps(),
+    )
+    op.create_primary_key("pk_assessments",'assessments', ["user_id", "course_id"])
+    op.execute(
+        """
+        CREATE TRIGGER update_user_offers_for_cleanings_modtime
+            BEFORE UPDATE
+            ON assessments
+            FOR EACH ROW
+        EXECUTE PROCEDURE update_updated_at_column();
+        """
+    )
+
 def upgrade() -> None:
     create_updated_at_trigger()
     create_users_table()
@@ -197,8 +228,10 @@ def upgrade() -> None:
     create_skills_table()
     create_skills_courses_table()
     create_payments_table()
+    create_assessments_table()
 
 def downgrade() -> None:
+    op.drop_table("assessments")
     op.drop_table("payments")
     op.drop_table("cleanings")
     op.drop_table("skills_courses")

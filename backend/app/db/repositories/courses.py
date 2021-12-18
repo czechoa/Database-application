@@ -99,6 +99,8 @@ class CoursesRepository(BaseRepository):
 
         return [CoursePublic(**l) for l in course_records]
 
+
+
     async def get_course_by_id(self, *, id: int) -> CourseInDB:
 
         cleaning = await self.db.fetch_one(query=GET_COURSE_BY_ID_QUERY, values={"id": id})
