@@ -110,6 +110,7 @@ def create_courses_table() -> None:
         sa.Column("id", sa.Integer, primary_key=True),
         sa.Column("name", sa.Text, nullable=False, index=True),
         sa.Column("description", sa.Text, nullable=True),
+        sa.Column("link", sa.Text, nullable=True),
         sa.Column("price", sa.Numeric(10, 5), nullable=False),
         sa.Column("owner", sa.Integer, sa.ForeignKey("users.id", ondelete="CASCADE")),
         *timestamps(indexed=True),

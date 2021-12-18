@@ -10,6 +10,7 @@ class CourseBase(CoreModel):
     """
     name: Optional[str]
     description: Optional[str]
+    link: Optional[str]
     price: Optional[float]
 
 class CourseCreate(CourseBase):

@@ -7,7 +7,7 @@ from app.api.dependencies.auth import get_current_active_user
 
 async def get_course_by_id_from_path(
     course_id: int = Path(..., ge=1),
-    current_user: UserInDB = Depends(get_current_active_user),
+    # current_user: UserInDB = Depends(get_current_active_user),
     courses_repo: CoursesRepository = Depends(get_repository(CoursesRepository)),
 ) -> CourseInDB:
     print(course_id)
