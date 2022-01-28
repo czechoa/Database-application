@@ -26,7 +26,7 @@ class UserCreate(CoreModel):
     """
 
     email: EmailStr
-    password: constr(min_length=7, max_length=100)
+    password: constr(min_length=7, max_length=100,regex = "(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)")
     username: constr(min_length=3, regex="[a-zA-Z0-9_-]+$")
 
 
@@ -36,7 +36,7 @@ class UserUpdate(CoreModel):
     """
 
     email: Optional[EmailStr]
-    username: Optional[constr(min_length=3, regex="[a-zA-Z0-9_-]+$")]
+    username: Optional[constr(min_length=3, regex="[a-zA-Z0-9_-]+$")] # allow
 
 
 class UserPasswordUpdate(CoreModel):
@@ -60,3 +60,4 @@ class UserInDB(IDModelMixin, DateTimeModelMixin, UserBase):
 class UserPublic(IDModelMixin, DateTimeModelMixin, UserBase):
     access_token: Optional[AccessToken]
     profile: Optional[ProfilePublic]
+# super password to loss password
