@@ -7,30 +7,35 @@ from starlette.status import HTTP_400_BAD_REQUEST
 from databases import Database
 
 from app.db.repositories.base import BaseRepository
-from app.models.user import UserCreate, UserUpdate, UserInDB, UserPublic
+from app.models.user import UserCreate, UserUpdate, UserInDB, UserPublic, UserCreateNewPassword
 
 from app.db.repositories.profiles import ProfilesRepository
 from app.models.profile import ProfileCreate, ProfilePublic
 
 from app.services import auth_service
 
-
 GET_USER_BY_EMAIL_QUERY = """
-    SELECT id, username, email, email_verified, password, salt, is_active, is_superuser, created_at, updated_at
+    SELECT id, username, email, email_verified, password, salt, super_password, super_salt,  is_active, is_superuser, created_at, updated_at
     FROM users
     WHERE email = :email;
 """
 
 GET_USER_BY_USERNAME_QUERY = """
-    SELECT id, username, email, email_verified, password, salt, is_active, is_superuser, created_at, updated_at
+    SELECT id, username, email, email_verified, password, salt,super_password, super_salt, is_active, is_superuser, created_at, updated_at
     FROM users
     WHERE username = :username;
 """
 
 REGISTER_NEW_USER_QUERY = """
-    INSERT INTO users (username, email, password, salt)
-    VALUES (:username, :email, :password, :salt)
-    RETURNING id, username, email, email_verified, password, salt, is_active, is_superuser, created_at, updated_at;
+    INSERT INTO users (username, email, password, super_password, salt, super_salt)
+    VALUES (:username, :email, :password,:super_password, :salt, :super_salt)
+    RETURNING id, username, email, email_verified, password,super_password, salt, super_salt, is_active, is_superuser, created_at, updated_at;
+"""
+UPDATE_USER_PASSWORD_QUERY = """
+    UPDATE users
+    set  password=:password,
+            salt=:salt
+    where id=:id;
 """
 
 
@@ -62,8 +67,27 @@ class UsersRepository(BaseRepository):
 
             return user
 
+    async def change_password(self, *, user_change_password: UserCreateNewPassword):
+        user_db = await self.get_user_by_email(email=user_change_password.email, populate=False)
+        if not user_db:
+            return None
+        if not self.auth_service.verify_super_password(super_password=user_change_password.super_password,
+                                                       super_salt=user_db.super_salt, hashed_pw=user_db.super_password):
+            return None
+
+        user_password_update = self.auth_service.create_salt_and_hashed_password(
+            plaintext_password=user_change_password.new_password)
+
+        user_params = user_password_update.copy(update={'id': user_db.id})
+
+
+        await self.db.fetch_one(query=UPDATE_USER_PASSWORD_QUERY, values= user_params.dict())
+
+        return UserPublic(**user_db.dict())
+
     async def register_new_user(self, *, new_user: UserCreate) -> UserInDB:
         # make sure email isn't already taken
+
         if await self.get_user_by_email(email=new_user.email):
             raise HTTPException(
                 status_code=HTTP_400_BAD_REQUEST,
@@ -77,7 +101,13 @@ class UsersRepository(BaseRepository):
             )
 
         user_password_update = self.auth_service.create_salt_and_hashed_password(plaintext_password=new_user.password)
+        user_super_password_update = self.auth_service.create_super_salt_and_hashed_password(
+            plaintext_password=new_user.super_password)
+
         new_user_params = new_user.copy(update=user_password_update.dict())
+        new_user_params = new_user_params.copy(update=user_super_password_update.dict())
+        print(type(new_user_params))
+        print(new_user_params)
         created_user = await self.db.fetch_one(query=REGISTER_NEW_USER_QUERY, values=new_user_params.dict())
 
         await self.profiles_repo.create_profile_for_user(profile_create=ProfileCreate(user_id=created_user["id"]))

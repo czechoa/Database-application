@@ -27,8 +27,20 @@ class UserCreate(CoreModel):
 
     email: EmailStr
     password: constr(min_length=7, max_length=100,regex = "(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)")
-    username: constr(min_length=3, regex="[a-zA-Z0-9_-]+$")
+    super_password: constr(min_length=7, max_length=100,regex = "(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)")
 
+    username: constr(min_length=3, max_length=100, regex="[a-zA-Z0-9_-]+$")
+
+
+class UserCreateNewPassword(CoreModel):
+    """
+    Email, username, and password are required for registering a new user
+    """
+
+    email: EmailStr
+    username: constr(min_length=3, regex="[a-zA-Z0-9_-]+$")
+    super_password: constr(min_length=7, max_length=100,regex = "(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)")
+    new_password: constr(min_length=7, max_length=100,regex = "(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)")
 
 class UserUpdate(CoreModel):
     """
@@ -47,6 +59,13 @@ class UserPasswordUpdate(CoreModel):
     password: constr(min_length=7, max_length=100)
     salt: str
 
+class UserSuperPasswordUpdate(CoreModel):
+    """
+    Users can change their password
+    """
+
+    super_password: constr(min_length=7, max_length=100)
+    super_salt: str
 
 class UserInDB(IDModelMixin, DateTimeModelMixin, UserBase):
     """
@@ -54,7 +73,10 @@ class UserInDB(IDModelMixin, DateTimeModelMixin, UserBase):
     """
 
     password: constr(min_length=7)
+    super_password: constr(min_length=7)
+
     salt: str
+    super_salt: str
 
 
 class UserPublic(IDModelMixin, DateTimeModelMixin, UserBase):

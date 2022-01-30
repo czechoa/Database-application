@@ -50,7 +50,9 @@ def create_users_table() -> None:
         sa.Column("email", sa.Text, unique=True, nullable=False, index=True),
         sa.Column("email_verified", sa.Boolean, nullable=False, server_default="False"),
         sa.Column("salt", sa.Text, nullable=False),
+        sa.Column("super_salt", sa.Text, nullable=False),
         sa.Column("password", sa.Text, nullable=False),
+        sa.Column("super_password", sa.Text, nullable=False),
         sa.Column("is_active", sa.Boolean(), nullable=False, server_default="True"),
         sa.Column("is_superuser", sa.Boolean(), nullable=False, server_default="False"),
         *timestamps(),
@@ -224,7 +226,7 @@ def upgrade() -> None:
     create_updated_at_trigger()
     create_users_table()
     create_profiles_table()
-    create_cleanings_table()
+    # create_cleanings_table()
     create_courses_table()
     create_skills_table()
     create_skills_courses_table()
@@ -234,7 +236,7 @@ def upgrade() -> None:
 def downgrade() -> None:
     op.drop_table("assessments")
     op.drop_table("payments")
-    op.drop_table("cleanings")
+    # op.drop_table("cleanings")
     op.drop_table("skills_courses")
     op.drop_table('courses')
     op.drop_table("profiles")

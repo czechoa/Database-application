@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import PlainTextResponse
 from app.core import config, tasks
 
 from app.api.routes import router as api_router
@@ -21,6 +22,10 @@ def get_application():
     app.add_event_handler("shutdown", tasks.create_stop_app_handler(app))
 
     app.include_router(api_router, prefix="/api")
+
+    # @app.exception_handler(RequestValidationError)
+    # async def validation_exception_handler(request, exc):
+    #     return PlainTextResponse(str("validation error"), status_code=400)
 
     return app
 

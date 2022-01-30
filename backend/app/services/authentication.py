@@ -9,8 +9,7 @@ from pydantic import ValidationError
 
 from app.core.config import SECRET_KEY, JWT_ALGORITHM, JWT_AUDIENCE, JWT_TOKEN_PREFIX, ACCESS_TOKEN_EXPIRE_MINUTES
 from app.models.token import JWTMeta, JWTCreds, JWTPayload
-from app.models.user import UserBase, UserPasswordUpdate
-
+from app.models.user import UserBase, UserPasswordUpdate, UserSuperPasswordUpdate
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -20,20 +19,30 @@ class AuthException(BaseException):
 
 
 class AuthService:
+    pepper = 'this_is_rando+papper_#_234'
     def create_salt_and_hashed_password(self, *, plaintext_password: str) -> UserPasswordUpdate:
         salt = self.generate_salt()
-        hashed_password = self.hash_password(password=plaintext_password, salt=salt)
+        hashed_password = self.hash_password(password=plaintext_password, salt=salt, pepper= self.pepper)
 
         return UserPasswordUpdate(salt=salt, password=hashed_password)
+
+    def create_super_salt_and_hashed_password(self, *, plaintext_password: str) -> UserPasswordUpdate:
+        salt = self.generate_salt()
+        hashed_password = self.hash_password(password=plaintext_password, salt=salt, pepper= self.pepper)
+
+        return UserSuperPasswordUpdate(super_salt=salt, super_password=hashed_password)
 
     def generate_salt(self) -> str:
         return bcrypt.gensalt().decode()
 
-    def hash_password(self, *, password: str, salt: str) -> str:
-        return pwd_context.hash(password + salt)
+    def hash_password(self, *, password: str, salt: str, pepper: str) -> str:
+        return pwd_context.hash(pepper + password + salt)
 
     def verify_password(self, *, password: str, salt: str, hashed_pw: str) -> bool:
-        return pwd_context.verify(password + salt, hashed_pw)
+        return pwd_context.verify(self.pepper + password + salt, hashed_pw)
+
+    def verify_super_password(self, *, super_password: str, super_salt: str, hashed_pw: str) -> bool:
+        return pwd_context.verify(self.pepper + super_password + super_salt, hashed_pw)
 
     def create_access_token_for_user(
         self,
