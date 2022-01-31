@@ -276,7 +276,9 @@ def create_passwords_table() -> None:
         "passwords",
         sa.Column("id", sa.Integer, primary_key=True),
         sa.Column("description", sa.Text, nullable=True, index=True),
-        sa.Column("password", sa.Text, nullable=False, index=True),
+        sa.Column("password", sa.LargeBinary, nullable=False, index=True),
+        sa.Column("iv", sa.LargeBinary, nullable=False, index=True),
+        sa.Column("salt", sa.LargeBinary, nullable=False, index=True),
 
     )
     op.execute(

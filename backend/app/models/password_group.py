@@ -7,17 +7,17 @@ class PasswordGroupBase(CoreModel):
     """
     All common characteristics of our Course resource
     """
-    id_password: Optional[int]
+    password_id: Optional[int]
 
 
 class PasswordGroupCreate(PasswordGroupBase):
-    user_name: constr(min_length=3, max_length=300, regex="[a-zA-Z0-9_-]+$")
-    id_password: StrictInt
+    username: constr(min_length=3, max_length=300, regex="[a-zA-Z0-9_-]+$")
+    password_id: StrictInt
 
 class PasswordGroupInDB(IDModelMixin, PasswordGroupBase):
-    id_user: int
-    id_password: str
+    username: int
+    password_id: str
 
 class PasswordGroupPublic(PasswordGroupBase):
-    user_name: constr(min_length=3, max_length=100, regex="[a-zA-Z0-9_-]+$")
-    id_password: int
+    username: str
+    password_id: int

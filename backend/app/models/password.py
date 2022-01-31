@@ -12,13 +12,31 @@ class PasswordBase(CoreModel):
 class PasswordCreate(PasswordBase):
     description: constr(min_length=1, max_length=300, regex="[a-zA-Z0-9_ -]+$")
     password: constr(min_length=7, max_length=100, regex="[a-zA-Z0-9_-]+$")
-    # key: constr(min_length=3, max_length=100, regex="[a-zA-Z0-9_-]+$")
+    key: constr(min_length=7, max_length=100, regex="[a-zA-Z0-9_-]+$")
+
+
 
 class PasswordInDB(IDModelMixin, PasswordBase):
     id:int
     description: str
-    password: str
+    password: bytes
+    salt: bytes
+    iv: bytes
+
+class PasswordUpdate(PasswordBase):
+    description: str
+    password: bytes
+    salt: bytes
+    iv: bytes
 
 class PasswordPublic(PasswordBase):
     id:int
     description: str
+
+class PasswordDecrypted(PasswordPublic):
+    password:str
+
+# class PasswordToDecrypt(PasswordBase):
+#     password_id: int
+#     key: constr(min_length=7, max_length=100, regex="[a-zA-Z0-9_-]+$")
+

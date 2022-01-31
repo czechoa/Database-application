@@ -37,6 +37,7 @@ async def register_new_user(
         new_user: UserCreate = Body(..., embed=True),
         user_repo: UsersRepository = Depends(get_repository(UsersRepository)),
 ) -> UserPublic:
+
     try:
         created_user = await user_repo.register_new_user(new_user=new_user)
     except HTTP_422_UNPROCESSABLE_ENTITY:
