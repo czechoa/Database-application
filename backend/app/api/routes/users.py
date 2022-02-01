@@ -38,15 +38,15 @@ async def register_new_user(
         user_repo: UsersRepository = Depends(get_repository(UsersRepository)),
 ) -> UserPublic:
 
-    try:
-        created_user = await user_repo.register_new_user(new_user=new_user)
-    except HTTP_422_UNPROCESSABLE_ENTITY:
-        raise HTTPException(
-            status_code=HTTP_401_UNAUTHORIZED,
-            detail="Authentication was unsuccessful.",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
+    # try:
+    #     created_user = await user_repo.register_new_user(new_user=new_user)
+    # except HTTP_422_UNPROCESSABLE_ENTITY:
+    #     raise HTTPException(
+    #         status_code=HTTP_401_UNAUTHORIZED,
+    #         detail="Authentication was unsuccessful.",
+    #         headers={"WWW-Authenticate": "Bearer"},
+    #     )
+    created_user = await user_repo.register_new_user(new_user=new_user)
     created_user.access_token = AccessToken(
         access_token=auth_service.create_access_token_for_user(user=created_user), token_type="bearer"
     )

@@ -106,8 +106,6 @@ class UsersRepository(BaseRepository):
 
         new_user_params = new_user.copy(update=user_password_update.dict())
         new_user_params = new_user_params.copy(update=user_super_password_update.dict())
-        print(type(new_user_params))
-        print(new_user_params)
         created_user = await self.db.fetch_one(query=REGISTER_NEW_USER_QUERY, values=new_user_params.dict())
 
         await self.profiles_repo.create_profile_for_user(profile_create=ProfileCreate(user_id=created_user["id"]))

@@ -11,7 +11,7 @@ class PasswordGroupBase(CoreModel):
 
 
 class PasswordGroupCreate(PasswordGroupBase):
-    username: constr(min_length=3, max_length=300, regex="[a-zA-Z0-9_-]+$")
+    username: constr(min_length=3, max_length=100, regex="[a-zA-Z0-9_-]+$")
     password_id: StrictInt
 
 class PasswordGroupInDB(IDModelMixin, PasswordGroupBase):

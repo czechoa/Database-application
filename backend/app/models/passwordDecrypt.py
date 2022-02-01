@@ -1,6 +1,6 @@
 from typing import Optional, Union, List
 from app.models.core import IDModelMixin, DateTimeModelMixin, CoreModel
-from pydantic import constr
+from pydantic import constr,StrictInt
 
 
 class PasswordDecryptBase(CoreModel):
@@ -14,6 +14,6 @@ class PasswordDecryptBase(CoreModel):
 
 
 class PasswordToDecrypt(PasswordDecryptBase):
-    password_id: int
+    password_id: StrictInt
     key: constr(min_length=7, max_length=100, regex="[a-zA-Z0-9_-]+$")
 

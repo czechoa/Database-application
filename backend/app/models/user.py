@@ -1,7 +1,7 @@
 # import string
 from typing import Optional
 
-from pydantic import EmailStr, constr
+from pydantic import EmailStr, constr, validator
 
 from app.models.core import DateTimeModelMixin, IDModelMixin, CoreModel
 from app.models.token import AccessToken
@@ -24,12 +24,12 @@ class UserCreate(CoreModel):
     """
     Email, username, and password are required for registering a new user
     """
-
+    # [A-Za-z0-9@$!%*?&]+$
     email: EmailStr
-    password: constr(min_length=7, max_length=100,regex = "(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)")
-    super_password: constr(min_length=7, max_length=100,regex = "(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)")
+    password: constr(min_length=8, max_length=100,regex = "(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)[A-Za-z0-9@$!%*?&#]+$")
+    super_password: constr(min_length=8, max_length=100,regex = "(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)[A-Za-z0-9@$!%*?&#]+$")
+    username: constr(min_length=3, max_length = 100, regex="[a-zA-Z0-9_-]+$")
 
-    username: constr(min_length=3, max_length=100, regex="[a-zA-Z0-9_-]+$")
 
 
 class UserCreateNewPassword(CoreModel):
@@ -38,9 +38,9 @@ class UserCreateNewPassword(CoreModel):
     """
 
     email: EmailStr
-    username: constr(min_length=3, regex="[a-zA-Z0-9_-]+$")
-    super_password: constr(min_length=7, max_length=100,regex = "(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)")
-    new_password: constr(min_length=7, max_length=100,regex = "(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)")
+    username: constr(min_length=3, max_length = 100, regex="[a-zA-Z0-9_-]+$")
+    super_password: constr(min_length=8, max_length=100,regex = "(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&]+$")
+    new_password: constr(min_length=8, max_length=100,regex = "(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&]+$")
 
 class UserUpdate(CoreModel):
     """
@@ -78,8 +78,9 @@ class UserInDB(IDModelMixin, DateTimeModelMixin, UserBase):
     salt: str
     super_salt: str
 
-
 class UserPublic(IDModelMixin, DateTimeModelMixin, UserBase):
     access_token: Optional[AccessToken]
     profile: Optional[ProfilePublic]
 # super password to loss password
+class UserLogIn(UserBase):
+    password: constr(min_length=8, max_length=100,regex = "[A-Za-z\d@$!%*?&]+$")
